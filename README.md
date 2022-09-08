@@ -22,6 +22,7 @@ Our code is implemented in Python >=3.5, PyTorch >=1.2 and CUDA >=10.0.
 ```python
 cd 3D-AttriFlow
 conda create -n "i3d" python=3.9 anaconda
+conda activate i3d
 conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 pip install -r requirements.txt
 ```
