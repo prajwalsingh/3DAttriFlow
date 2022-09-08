@@ -17,7 +17,7 @@ If you find our code or paper useful, please consider citing
     }
 
 ## Installation:
-Our code is implemented in Python 3.5, PyTorch 1.2 and CUDA 10.0.
+Our code is implemented in Python >=3.5, PyTorch >=1.2 and CUDA >=10.0.
 - Install python Dependencies
 ```python
 cd 3D-AttriFlow
@@ -85,6 +85,11 @@ python val_pc.py -c cfgs/PC.yaml -gpu 0
 ## Acknowledgements
 
 Some of the code of this repo is borrowed from [VRCNet](https://github.com/paul007pl/VRCNet), [EigenGAN-Pytorch](https://github.com/bryandlee/eigengan-pytorch), [pytorchpointnet++](https://github.com/erikwijmans/Pointnet2_PyTorch) and [ChamferDistancePytorch](https://github.com/ThibaultGROUEIX/ChamferDistancePytorch). We thank the authors for their great job!
+
+* [charlesq34/pointnet2](https://github.com/charlesq34/pointnet2): Paper author and official code repo.
+* [erikwijmans/Pointnet2_PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch): Initial work of PyTorch implementation of PointNet++. 
+* [Replacing THC/THC.h module to ATen/ATen.h module](https://stackoverflow.com/q/72988735/5224257) : Fix for latest Pytorch versions
+* [error: ‘AT_CHECK’ was not declared in this scope](https://github.com/open-mmlab/OpenPCDet/issues/284#issuecomment-874171209): Fix for latest Pytorch versions
 
 ## License
 
