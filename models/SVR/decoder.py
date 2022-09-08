@@ -101,8 +101,11 @@ class SubspaceLayer(nn.Module):
     def __init__(self, dim, n_basis):
         super(SubspaceLayer, self).__init__()
 
-        self.U = nn.Parameter(torch.empty(n_basis, dim))    # (6,96)
-        nn.init.orthogonal_(self.U)
+        # self.U = nn.Parameter(torch.empty(n_basis, dim))    # (6,96)
+        # nn.init.orthogonal_(self.U)
+        self.U = nn.Parameter(torch.nn.init.xavier_uniform(torch.empty(n_basis, dim))+1e-6)    # (6,96)
+        # print(self.U)
+        # nn.init.orthogonal_(self.U)
         self.L = nn.Parameter(torch.FloatTensor([3 * i for i in range(n_basis, 0, -1)]))    # (6)
         self.mu = nn.Parameter(torch.zeros(dim))    # (96)
 
@@ -177,7 +180,6 @@ class SP_DecoderEigen3steps(nn.Module):
         feat = z.unsqueeze(2).repeat(1, 1, self.args.number_points)
         style = torch.cat([x, feat], dim=1)
         style = self.head(style)  # B,C,N
-
         x1 = self.EdgeConv1(x)
         x1 = self.lrelu1(x1)
         x1 = self.adain1(x1, style)
