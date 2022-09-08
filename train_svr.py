@@ -17,9 +17,10 @@ import os
 import sys
 import argparse
 from tqdm import tqdm
-from time import time
 import time as timetmp
+from time import time
 from utils.model_utils import *
+from visualization import plot_data
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -27,7 +28,8 @@ warnings.filterwarnings("ignore")
 def setFolders(args):
 
     LOG_DIR = args.dir_outpath
-    MODEL_NAME = '%s-%s'%(args.model_name, timetmp.strftime("%m%d_%H%M", timetmp.localtime()))
+    # MODEL_NAME = '%s-%s'%(args.model_name, timetmp.strftime("%m%d_%H%M", timetmp.localtime()))
+    MODEL_NAME = '%s'%(args.model_name)
 
     OUT_DIR = os.path.join(LOG_DIR, MODEL_NAME)
     args.dir_checkpoints = os.path.join(OUT_DIR, 'checkpoints')
@@ -76,7 +78,7 @@ def train():
 
     model_module = importlib.import_module('.%s' % args.model_name, 'models')
     net = torch.nn.DataParallel(model_module.Model(args))
-    net.cuda()
+    net.cuda(device=0)
 
     print('# encoder parameters:', sum(param.numel() for param in net.module.encoder.parameters()))
     print('# decoder parameters:', sum(param.numel() for param in net.module.decoder.parameters()))
@@ -102,6 +104,8 @@ def train():
 
     best_cd_l1 = float("inf")
     best_cd_l2 = float("inf")
+
+    load_model(str(log_dir) + '/checkpoints/' + str(args.start_epoch-1) + 'network.pth', net)
 
     for epoch in range(args.start_epoch, args.nepoch):
         epoch_start_time = time()
@@ -167,6 +171,9 @@ def train():
 
         if epoch % args.epoch_interval_to_val == 0 or epoch == args.nepoch - 1:
             best_cd_l1, best_cd_l2 = val(net, epoch, val_loss_meters, dataloader_test, best_epoch_losses, LOG_FOUT, log_dir, best_cd_l1, best_cd_l2)
+            # logging.info(
+            # exp_name + '[Epoch %d/%d] Val Losses = %s' %
+            # (epoch, args.nepoch, ['%.4f' % l for l in [best_cd_l1, best_cd_l2]]))
 
 
 def val(net, curr_epoch_num, val_loss_meters, dataloader_test, best_epoch_losses, LOG_FOUT, log_dir, best_cd_l1, best_cd_l2):
@@ -215,6 +222,9 @@ def val(net, curr_epoch_num, val_loss_meters, dataloader_test, best_epoch_losses
         log_string('%d,%.2f,%.2f,%.2f,%.2f'%(curr_epoch_num, avg_cd_l1, best_cd_l1, avg_cd_l2, best_cd_l2), LOG_FOUT)
 
         val_end_time = time()
+
+        images = torch.einsum('bcmn->bmnc', images)
+        plot_data(images, pred_points, path=str(log_dir))
 
         logging.info(
             '[Epoch %d/%d] TestTime = %.3f (s) Curr_cdl1 = %s Best_cdl1 = %s Curr_cdl2 = %s Best_cdl2 = %s' %
